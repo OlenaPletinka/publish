@@ -1,4 +1,4 @@
 package com.myFirstProject.myFirstProject.service;
 
-public class Vas {
+public class VasyaName {
 }
