@@ -29,7 +29,7 @@ public class ArticleServiceImplTest {
     private ArticleRepository articleRepository;
 
     @Mock
-    private RespConverterServiceImpl respConverterService;
+    private RespConverterService respConverterService;
 
     @Mock
     private UserRepository userRepository;
