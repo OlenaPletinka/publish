@@ -21,12 +21,18 @@ import java.util.Map;
 @Component
 public class CurrencyRateScheduler {
     private Logger logger = LoggerFactory.getLogger(CurrencyRateScheduler.class);
-
-    @Autowired
     private CurrencyRateRepository currencyRateRepository;
+    private CurrencyRateService currencyRateService;
 
     @Autowired
-    private CurrencyRateService currencyRateService;
+    public void setCurrencyRateRepository(CurrencyRateRepository currencyRateRepository) {
+        this.currencyRateRepository = currencyRateRepository;
+    }
+
+    @Autowired
+    public void setCurrencyRateService(CurrencyRateService currencyRateService) {
+        this.currencyRateService = currencyRateService;
+    }
 
     @Transactional()
     @Scheduled(initialDelayString = "${job.currencyRateScheduler.initialDelay}", fixedRateString = "${job.currencyRateScheduler.fixedRate}")

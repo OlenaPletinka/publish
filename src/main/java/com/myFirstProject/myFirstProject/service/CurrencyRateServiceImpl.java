@@ -18,15 +18,24 @@ import java.util.List;
 @Service
 public class CurrencyRateServiceImpl implements CurrencyRateService {
     private Logger logger = LoggerFactory.getLogger(CurrencyRateServiceImpl.class);
-
-    @Autowired
     private RestTemplate restTemplate;
-
-    @Autowired
     private CurrencyConverter currencyConverter;
+    private CurrencyRateRepository currencyRateRepository;
 
     @Autowired
-    private CurrencyRateRepository currencyRateRepository;
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
+    @Autowired
+    public void setCurrencyConverter(CurrencyConverter currencyConverter) {
+        this.currencyConverter = currencyConverter;
+    }
+
+    @Autowired
+    public void setCurrencyRateRepository(CurrencyRateRepository currencyRateRepository) {
+        this.currencyRateRepository = currencyRateRepository;
+    }
 
     @Override
     public List<CurrencyRate> getRate() {
