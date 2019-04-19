@@ -1,0 +1,203 @@
+package com.myFirstProject.myFirstProject.service;
+
+import com.myFirstProject.myFirstProject.converter.ReqConverterService;
+import com.myFirstProject.myFirstProject.dto.PaymentReq;
+import com.myFirstProject.myFirstProject.exception.NotEnoughManyOnAccountException;
+import com.myFirstProject.myFirstProject.exception.UserHaveNoAccount;
+import com.myFirstProject.myFirstProject.exception.UserNotFoundException;
+import com.myFirstProject.myFirstProject.model.*;
+import com.myFirstProject.myFirstProject.repository.AccountRepository;
+import com.myFirstProject.myFirstProject.repository.PaymentRepository;
+import com.myFirstProject.myFirstProject.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class AccountServiceImpl implements AccountService {
+
+    private Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
+
+    @Value("${negative.balanceOfUser}")
+    private BigDecimal negativeBalanceOfUser;
+
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private BasketService basketService;
+
+    @Autowired
+    private DeletedBasketService deletedBasketService;
+
+    @Autowired
+    private ReqConverterService reqConverterService;
+
+    @Autowired
+    private CurrencyRateService currencyRateService;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Override
+    @Transactional
+    public void updateAccount(PaymentReq paymentReq) {
+        User user = getUser(paymentReq);
+        Account account = accountRepository.findAccountByUserId(paymentReq.getUserId());
+        if (account != null) {
+            BigDecimal paymentReqSum = paymentReq.getSum();
+            CurrencyEntity paymentReqCurrencyEntity = paymentReq.getCurrencyEntity();
+            BigDecimal sum = currencyConverter(paymentReqSum, paymentReqCurrencyEntity);
+            BigDecimal presentAmount = account.getSum();
+            BigDecimal result = presentAmount.add(sum);
+            account.setSum(result);
+            Payment payment = getPayment(paymentReq, account, sum);
+            account.getPayments().add(payment);
+            //тут не виклик в репозиторія сейв бо зміни відбулися в транзакції і
+            //обєкт уже існує в репозиторії
+        } else {
+            //викликали сейв бо акаутна у юзера не було
+            accountRepository.save(createAccount(paymentReq, user));
+        }
+    }
+
+    private Payment getPayment(PaymentReq paymentReq, Account account, BigDecimal sum) {
+        Payment payment = new Payment();
+        payment.setAccount(account);
+        payment.setSum(sum);
+        payment.setCurrencyEntity(paymentReq.getCurrencyEntity());
+        payment.setRate(findRate(paymentReq.getCurrencyEntity()));
+        payment.setTimeOfPayment(LocalDateTime.now());
+        payment.setPaymentSystemEntity(paymentReq.getPaymentSystemEntity());
+        paymentRepository.save(payment);
+        return payment;
+    }
+
+    private BigDecimal findRate(CurrencyEntity currencyEntity) {
+        List<CurrencyRate> currencyRates = getCurrencyRates();
+        BigDecimal result = BigDecimal.ZERO;
+        for (CurrencyRate currencyRate : currencyRates) {
+            if (currencyRate.getCompositeId().getOriginal().equals(currencyEntity)) {
+                result = BigDecimal.ONE;
+            } else if (currencyRate.getCompositeId().getDestination().equals(currencyEntity)) {
+                result = currencyRate.getRate();
+            }
+        }
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public BigDecimal currencyConverter(BigDecimal sum, CurrencyEntity currencyEntity) {
+        List<CurrencyRate> currencyRates = getCurrencyRates();
+        CurrencyEntity original = currencyRates.get(0).getCompositeId().getOriginal();
+
+        if (currencyEntity.equals(original)) {
+            logger.info(String.format("User put money to his account in %s, value - %s", currencyEntity, sum));
+            return sum;
+        } else {
+            return convertSum(currencyRates, currencyEntity, sum);
+
+        }
+
+    }
+
+    @Override
+    public BigDecimal calculateTaxPerMonth(List<Payment> paymentPerMonth) {
+        BigDecimal sum = BigDecimal.ZERO;
+        for (Payment payment : paymentPerMonth) {
+            sum = sum.add(currencyConverter(payment.getSum(), payment.getCurrencyEntity()));
+        }
+        BigDecimal percent = BigDecimal.TEN;
+        logger.info(String.format("Revenue of company per month is - %s", sum));
+        BigDecimal tax = sum.divide(percent);
+        logger.info(String.format("%s percent tax equals %s dollars", percent, tax));
+
+        return tax;
+    }
+
+    private List<CurrencyRate> getCurrencyRates() {
+        return currencyRateService.getRateFromRepository();
+    }
+
+    private BigDecimal convertSum(List<CurrencyRate> currencyRates, CurrencyEntity currencyEntity, BigDecimal sum) {
+        BigDecimal result = BigDecimal.ZERO;
+        logger.info("Convert currency from paymentReq.");
+        for (CurrencyRate currencyRate : currencyRates) {
+            if (currencyRate.getCompositeId().getDestination().equals(currencyEntity)) {
+                logger.info(String.format("User put money to his account in %s, value - %s", currencyEntity, sum));
+                result = sum.multiply(currencyRate.getRate());
+                logger.info(String.format("It is - %s $", result));
+
+            }
+        }
+        return result;
+    }
+
+
+    @Override
+    @Transactional
+    public void payForArticles(BigDecimal tacks, Long id) {
+        Account account = accountRepository.findAccountByUserId(id);
+        checkAccount(account, tacks);
+        BigDecimal subtract = account.getSum().subtract(tacks);
+        account.setSum(subtract);
+        logger.info(String.format("User with id - %d payed - %s, his account - %s", id, tacks, subtract));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal getAmountOfSpentMoney(Long userId) {
+        if (userRepository.existsById(userId)) {
+            logger.info(String.format("User with id - %d totally spent %s", userId, basketService.getAmountOfSpentMoneyFromBaskets(userId).add(deletedBasketService.getAmountOfSpentMoneyFromDeletedBaskets(userId))));
+            return basketService.getAmountOfSpentMoneyFromBaskets(userId).add(deletedBasketService.getAmountOfSpentMoneyFromDeletedBaskets(userId));
+        } else {
+            throw new UserNotFoundException(String.format("User with id - %d do not find", userId));
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal getTotalRevenue() {
+        BigDecimal totalRevenue = basketService.revenueFromBaskets().add(deletedBasketService.revenueFromDeletedBaskets());
+        logger.info(String.format("Total revenue of company is - %s", totalRevenue));
+
+        return totalRevenue;
+    }
+
+    private void checkAccount(Account account, BigDecimal tacks) {
+        if (account == null) {
+            throw new UserHaveNoAccount(String.format("User with id - %d have no account", account.getUser().getId()));
+        } else if (account.getSum().compareTo(tacks.subtract(negativeBalanceOfUser)) < 1) {
+            throw new NotEnoughManyOnAccountException(String.format("%s it is does not enough to pay", account.getSum()));
+        }
+    }
+
+    private Account createAccount(PaymentReq paymentReq, User user) {
+        Account account = new Account();
+        account.setSum(currencyConverter(paymentReq.getSum(), paymentReq.getCurrencyEntity() ));
+        account.setUser(user);
+        List<Payment>payments = new ArrayList<>();
+        payments.add(getPayment(paymentReq,account,currencyConverter(paymentReq.getSum(), paymentReq.getCurrencyEntity())));
+        account.setPayments(payments);
+        return account;
+    }
+
+    private User getUser(PaymentReq paymentReq) {
+        return userRepository.findById(paymentReq.getUserId())
+                .orElseThrow(()
+                        -> new UserNotFoundException(String.format("User with id %d not found", paymentReq.getUserId()))
+                );
+    }
+}

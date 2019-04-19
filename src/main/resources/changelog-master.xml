@@ -1,0 +1,126 @@
+<!--liquibase - використовується для заповнення таблиць в базі даних дефолтними значеннями - енамами-->
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+   http://www.liquibase.org/xml/ns/dbchangelog
+   http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet author="olena_pletinka" id="olena08">
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="AUD"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="BGN"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="BRL"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="CAD"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="CHF"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="CNY"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="CZK"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="DKK"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="EUR"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="GBP"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="HKD"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="HRK"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="HUF"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="IDR"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="ILS"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="INR"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="ISK"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="JPY"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="KRW"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="MXN"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="MYR"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="NOK"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="NZD"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="PHP"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="PLN"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="RON"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="RUB"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="SEK"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="SGD"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="THB"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="TRY"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="USD"/>
+        </insert>
+        <insert tableName="currency_entity">
+            <column name="currency" type="varchar(255)" value="ZAR"/>
+        </insert>
+    </changeSet>
+
+    <changeSet author="olena_pletinka" id="olena888">
+    <insert tableName="payment_system_entity">
+        <column name="payment_system" type="varchar(255)" value="PAYPAL"/>
+    </insert>
+</changeSet>
+
+    <!--<changeSet author="olena_pletinka" id="olena8888">-->
+        <!--<insert tableName="user_role">-->
+            <!--<column name="role" type="varchar(255)" value="USER"/>-->
+            <!--<column name="role" type="varchar(255)" value="ADMIN"/>-->
+        <!--</insert>-->
+<!--</changeSet>-->
+
+        </databaseChangeLog>
