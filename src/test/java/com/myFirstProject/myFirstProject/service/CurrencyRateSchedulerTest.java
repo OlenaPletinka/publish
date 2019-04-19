@@ -34,7 +34,7 @@ public class CurrencyRateSchedulerTest {
 //        WHEN
         currencyRateScheduler.updateCurrencyRate();
 //        THEN
-        Mockito.verify(currencyRateRepository, Mockito.times(1)).saveAll(eq(getListCurrencyRate()));
+        Mockito.verify(currencyRateRepository).saveAll(eq(getListCurrencyRate()));
     }
 
     private List<CurrencyRate> getListCurrencyRate() {
