@@ -100,7 +100,6 @@ public class Article {
 
         public Article build(){
             return article;
-
         }
     }
 }
