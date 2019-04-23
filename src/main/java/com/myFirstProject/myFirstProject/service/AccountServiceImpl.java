@@ -29,26 +29,42 @@ public class AccountServiceImpl implements AccountService {
     @Value("${negative.balanceOfUser}")
     private BigDecimal negativeBalanceOfUser;
 
-    @Autowired
     private AccountRepository accountRepository;
-
-    @Autowired
     private UserRepository userRepository;
-
-    @Autowired
     private BasketService basketService;
-
-    @Autowired
     private DeletedBasketService deletedBasketService;
-
-    @Autowired
-    private ReqConverterService reqConverterService;
-
-    @Autowired
     private CurrencyRateService currencyRateService;
+    private PaymentRepository paymentRepository;
 
     @Autowired
-    private PaymentRepository paymentRepository;
+    public void setAccountRepository(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
+
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Autowired
+    public void setBasketService(BasketService basketService) {
+        this.basketService = basketService;
+    }
+
+    @Autowired
+    public void setDeletedBasketService(DeletedBasketService deletedBasketService) {
+        this.deletedBasketService = deletedBasketService;
+    }
+
+    @Autowired
+    public void setCurrencyRateService(CurrencyRateService currencyRateService) {
+        this.currencyRateService = currencyRateService;
+    }
+
+    @Autowired
+    public void setPaymentRepository(PaymentRepository paymentRepository) {
+        this.paymentRepository = paymentRepository;
+    }
 
     @Override
     @Transactional
@@ -68,7 +84,8 @@ public class AccountServiceImpl implements AccountService {
             //обєкт уже існує в репозиторії
         } else {
             //викликали сейв бо акаутна у юзера не було
-            accountRepository.save(createAccount(paymentReq, user));
+            Account accountNew = createAccount(paymentReq, user);
+            accountRepository.save(accountNew);
         }
     }
 
