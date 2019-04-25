@@ -4,7 +4,7 @@ import com.myFirstProject.myFirstProject.dto.PaymentReq;
 import com.myFirstProject.myFirstProject.enums.Currency;
 import com.myFirstProject.myFirstProject.enums.PaymentSystem;
 import com.myFirstProject.myFirstProject.exception.NotEnoughManyOnAccountException;
-import com.myFirstProject.myFirstProject.exception.UserHaveNoAccountException;
+import com.myFirstProject.myFirstProject.exception.UserHasNotAccountException;
 import com.myFirstProject.myFirstProject.exception.UserNotFoundException;
 import com.myFirstProject.myFirstProject.model.*;
 import com.myFirstProject.myFirstProject.repository.AccountRepository;
@@ -40,7 +40,7 @@ public class AccountServiceImplTest {
     private CurrencyRateService currencyRateService;
     @Mock
     private PaymentRepository paymentRepository;
-    //    каптор для того щоб перехопити обєкт який буде виконуватися в методі, в мене використ тому що там
+//    каптор для того щоб перехопити обєкт який буде виконуватися в методі, в мене використ тому що там
 //    встановл локал дейт нав
     @Captor
     private ArgumentCaptor<Payment> paymentArgumentCaptor;
@@ -75,7 +75,6 @@ public class AccountServiceImplTest {
         Assert.assertEquals(2, account.getPayments().size());
     }
 
-
     private Account buildAccount() {
         Account account = new Account();
         account.setUser(buildUser());
@@ -106,7 +105,6 @@ public class AccountServiceImplTest {
         payments.add(payment);
         return payments;
     }
-
 
     public PaymentReq buildPaymentReq() {
         PaymentReq paymentReq = new PaymentReq();
@@ -173,7 +171,7 @@ public class AccountServiceImplTest {
 
     @Test
     public void currencyConverter() {
-        //Given
+//        Given
         BigDecimal sum = BigDecimal.TEN;
         CurrencyEntity givenCurrency = new CurrencyEntity();
         givenCurrency.setCurrency(Currency.EUR);
@@ -237,7 +235,7 @@ public class AccountServiceImplTest {
 
     @Test
     public void payForArticles() {
-        //Given
+//        Given
         BigDecimal tax = BigDecimal.valueOf(0.1);
         Long id = 1L;
         AccountServiceImpl accountService = new AccountServiceImpl();
@@ -253,7 +251,7 @@ public class AccountServiceImplTest {
         Assert.assertEquals(BigDecimal.valueOf(0.9), account.getSum());
     }
 
-    @Test(expected = UserHaveNoAccountException.class)
+    @Test(expected = UserHasNotAccountException.class)
     public void payForArticlesWhenThereIsNoAccount() {
 //        Given
         BigDecimal tax = BigDecimal.ONE;
@@ -263,7 +261,6 @@ public class AccountServiceImplTest {
 //        When
         accountService.payForArticles(tax, 1L);
     }
-
 
     @Test(expected = NotEnoughManyOnAccountException.class)
     public void payForArticlesWhenNotEnoughMoney() {
@@ -277,7 +274,6 @@ public class AccountServiceImplTest {
         ReflectionTestUtils.setField(accountService, "negativeBalanceOfUser", BigDecimal.valueOf(5));
 //        When
         accountService.payForArticles(tax, id);
-
     }
 
     @Test
@@ -299,13 +295,13 @@ public class AccountServiceImplTest {
 
     @Test(expected = UserNotFoundException.class)
     public void getAmountOfSpentMoneyWhenUserNotFound() {
-        //        Given
+//        Given
         Long id = 1L;
         AccountServiceImpl accountService = new AccountServiceImpl();
         accountService.setUserRepository(userRepository);
         Mockito.when(userRepository.existsById(id)).thenReturn(false);
 //        When
-        BigDecimal actualResult = accountService.getAmountOfSpentMoney(id);
+       accountService.getAmountOfSpentMoney(id);
     }
 
     @Test
@@ -321,5 +317,4 @@ public class AccountServiceImplTest {
 //        Then
         Assert.assertEquals(BigDecimal.valueOf(20), actualResult);
     }
-
 }

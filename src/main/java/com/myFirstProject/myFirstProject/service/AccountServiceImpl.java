@@ -2,7 +2,7 @@ package com.myFirstProject.myFirstProject.service;
 
 import com.myFirstProject.myFirstProject.dto.PaymentReq;
 import com.myFirstProject.myFirstProject.exception.NotEnoughManyOnAccountException;
-import com.myFirstProject.myFirstProject.exception.UserHaveNoAccountException;
+import com.myFirstProject.myFirstProject.exception.UserHasNotAccountException;
 import com.myFirstProject.myFirstProject.exception.UserNotFoundException;
 import com.myFirstProject.myFirstProject.model.*;
 import com.myFirstProject.myFirstProject.repository.AccountRepository;
@@ -77,15 +77,15 @@ public class AccountServiceImpl implements AccountService {
             BigDecimal presentAmount = account.getSum();
             BigDecimal result = presentAmount.add(sum);
             account.setSum(result);
-            Payment payment = getPayment(paymentReq, account,sum);
+            Payment payment = getPayment(paymentReq, account, sum);
             account.getPayments().add(payment);
             //тут не виклик в репозиторія сейв бо зміни відбулися в транзакції і
             //обєкт уже існує в репозиторії
         } else {
             //викликали сейв бо акаутна у юзера не було
             account = accountRepository.save(createAccount(paymentReq, user));
-            List<Payment>payments = new ArrayList<>();
-            payments.add(getPayment(paymentReq,account, currencyConverter(paymentReq.getSum(), paymentReq.getCurrencyEntity())));
+            List<Payment> payments = new ArrayList<>();
+            payments.add(getPayment(paymentReq, account, currencyConverter(paymentReq.getSum(), paymentReq.getCurrencyEntity())));
             account.setPayments(payments);
         }
     }
@@ -196,7 +196,7 @@ public class AccountServiceImpl implements AccountService {
 
     private void checkAccount(Account account, BigDecimal tacks) {
         if (account == null) {
-            throw new UserHaveNoAccountException("User with  have no account");
+            throw new UserHasNotAccountException("User have not account");
         } else if (account.getSum().compareTo(tacks.subtract(negativeBalanceOfUser)) < 1) {
             throw new NotEnoughManyOnAccountException(String.format("%s it is does not enough to pay", account.getSum()));
         }
@@ -204,7 +204,7 @@ public class AccountServiceImpl implements AccountService {
 
     private Account createAccount(PaymentReq paymentReq, User user) {
         Account account = new Account();
-        account.setSum(currencyConverter(paymentReq.getSum(), paymentReq.getCurrencyEntity() ));
+        account.setSum(currencyConverter(paymentReq.getSum(), paymentReq.getCurrencyEntity()));
         account.setUser(user);
         return account;
     }
