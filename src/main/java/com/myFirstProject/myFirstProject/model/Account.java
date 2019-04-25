@@ -33,4 +33,13 @@ public class Account {
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     @Audited(targetAuditMode = NOT_AUDITED)
     private List<Payment> payments = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "id=" + id +
+                ", user=" + user +
+                ", sum=" + sum +
+                '}';
+    }
 }
