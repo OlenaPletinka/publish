@@ -1,9 +1,8 @@
 package com.myFirstProject.myFirstProject.service;
 
-import com.myFirstProject.myFirstProject.converter.ReqConverterService;
 import com.myFirstProject.myFirstProject.dto.PaymentReq;
 import com.myFirstProject.myFirstProject.exception.NotEnoughManyOnAccountException;
-import com.myFirstProject.myFirstProject.exception.UserHaveNoAccount;
+import com.myFirstProject.myFirstProject.exception.UserHasNotAccountException;
 import com.myFirstProject.myFirstProject.exception.UserNotFoundException;
 import com.myFirstProject.myFirstProject.model.*;
 import com.myFirstProject.myFirstProject.repository.AccountRepository;
@@ -29,26 +28,42 @@ public class AccountServiceImpl implements AccountService {
     @Value("${negative.balanceOfUser}")
     private BigDecimal negativeBalanceOfUser;
 
-    @Autowired
     private AccountRepository accountRepository;
-
-    @Autowired
     private UserRepository userRepository;
-
-    @Autowired
     private BasketService basketService;
-
-    @Autowired
     private DeletedBasketService deletedBasketService;
-
-    @Autowired
-    private ReqConverterService reqConverterService;
-
-    @Autowired
     private CurrencyRateService currencyRateService;
+    private PaymentRepository paymentRepository;
 
     @Autowired
-    private PaymentRepository paymentRepository;
+    public void setAccountRepository(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
+    }
+
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Autowired
+    public void setBasketService(BasketService basketService) {
+        this.basketService = basketService;
+    }
+
+    @Autowired
+    public void setDeletedBasketService(DeletedBasketService deletedBasketService) {
+        this.deletedBasketService = deletedBasketService;
+    }
+
+    @Autowired
+    public void setCurrencyRateService(CurrencyRateService currencyRateService) {
+        this.currencyRateService = currencyRateService;
+    }
+
+    @Autowired
+    public void setPaymentRepository(PaymentRepository paymentRepository) {
+        this.paymentRepository = paymentRepository;
+    }
 
     @Override
     @Transactional
@@ -68,14 +83,17 @@ public class AccountServiceImpl implements AccountService {
             //обєкт уже існує в репозиторії
         } else {
             //викликали сейв бо акаутна у юзера не було
-            accountRepository.save(createAccount(paymentReq, user));
+            account = accountRepository.save(createAccount(paymentReq, user));
+            List<Payment> payments = new ArrayList<>();
+            payments.add(getPayment(paymentReq, account, currencyConverter(paymentReq.getSum(), paymentReq.getCurrencyEntity())));
+            account.setPayments(payments);
         }
     }
 
     private Payment getPayment(PaymentReq paymentReq, Account account, BigDecimal sum) {
         Payment payment = new Payment();
-        payment.setAccount(account);
         payment.setSum(sum);
+        payment.setAccount(account);
         payment.setCurrencyEntity(paymentReq.getCurrencyEntity());
         payment.setRate(findRate(paymentReq.getCurrencyEntity()));
         payment.setTimeOfPayment(LocalDateTime.now());
@@ -178,7 +196,7 @@ public class AccountServiceImpl implements AccountService {
 
     private void checkAccount(Account account, BigDecimal tacks) {
         if (account == null) {
-            throw new UserHaveNoAccount(String.format("User with id - %d have no account", account.getUser().getId()));
+            throw new UserHasNotAccountException("User have not account");
         } else if (account.getSum().compareTo(tacks.subtract(negativeBalanceOfUser)) < 1) {
             throw new NotEnoughManyOnAccountException(String.format("%s it is does not enough to pay", account.getSum()));
         }
@@ -186,11 +204,8 @@ public class AccountServiceImpl implements AccountService {
 
     private Account createAccount(PaymentReq paymentReq, User user) {
         Account account = new Account();
-        account.setSum(currencyConverter(paymentReq.getSum(), paymentReq.getCurrencyEntity() ));
+        account.setSum(currencyConverter(paymentReq.getSum(), paymentReq.getCurrencyEntity()));
         account.setUser(user);
-        List<Payment>payments = new ArrayList<>();
-        payments.add(getPayment(paymentReq,account,currencyConverter(paymentReq.getSum(), paymentReq.getCurrencyEntity())));
-        account.setPayments(payments);
         return account;
     }
 

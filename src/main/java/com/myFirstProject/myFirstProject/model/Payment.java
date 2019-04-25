@@ -40,4 +40,17 @@ public class Payment {
 
     @Column
     private BigDecimal rate;
+
+    @Override
+    public String toString() {
+        return "Payment{" +
+                "id=" + id +
+                ", paymentSystemEntity=" + paymentSystemEntity +
+                ", account=" + account +
+                ", timeOfPayment=" + timeOfPayment +
+                ", sum=" + sum +
+                ", currencyEntity=" + currencyEntity +
+                ", rate=" + rate +
+                '}';
+    }
 }

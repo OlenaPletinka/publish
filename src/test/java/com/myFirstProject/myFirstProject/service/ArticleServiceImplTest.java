@@ -88,7 +88,6 @@ public class ArticleServiceImplTest {
 //        THEN
         Assert.assertNotNull(actualResult);
         Assert.assertEquals(articleResp, actualResult.get(0));
-
     }
 
     private User getUser() {
