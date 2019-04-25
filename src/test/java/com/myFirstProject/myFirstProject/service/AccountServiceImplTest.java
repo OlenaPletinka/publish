@@ -76,9 +76,7 @@ public class AccountServiceImplTest {
     }
 
     private Account buildAccount() {
-        Account account = new Account();
-        account.setUser(buildUser());
-        account.setSum(BigDecimal.ONE);
+        Account account = buildNewAccount(BigDecimal.ONE);
         List<Payment> payments = new ArrayList<>();
         Payment payment = new Payment();
         payments.add(payment);
@@ -86,24 +84,11 @@ public class AccountServiceImplTest {
         return account;
     }
 
-    private Account buildNewAccount() {
+    private Account buildNewAccount(BigDecimal sum) {
         Account account = new Account();
-        account.setSum(BigDecimal.TEN);
+        account.setSum(sum);
         account.setUser(buildUser());
         return account;
-    }
-
-    private List<Payment> buildPayments() {
-        List<Payment> payments = new ArrayList<>();
-        Payment payment = new Payment();
-        payment.setSum(BigDecimal.TEN);
-        payment.setCurrencyEntity(buildCurrencyEntity());
-        payment.setRate(BigDecimal.ONE);
-        PaymentSystemEntity paymentSystemEntity = new PaymentSystemEntity();
-        paymentSystemEntity.setPaymentSystem(PaymentSystem.PAYPAL);
-        payment.setPaymentSystemEntity(paymentSystemEntity);
-        payments.add(payment);
-        return payments;
     }
 
     public PaymentReq buildPaymentReq() {
@@ -141,7 +126,7 @@ public class AccountServiceImplTest {
         accountService.setCurrencyRateService(currencyRateService);
         Mockito.when(currencyRateService.getRateFromRepository()).thenReturn(buildCurrencyRates());
         accountService.setPaymentRepository(paymentRepository);
-        Mockito.when(accountRepository.save(buildNewAccount())).thenReturn(buildNewAccount());
+        Mockito.when(accountRepository.save(buildNewAccount(BigDecimal.TEN))).thenReturn(buildNewAccount(BigDecimal.TEN));
 //        WHEN
         accountService.updateAccount(paymentReq);
 //        THEN
@@ -155,7 +140,7 @@ public class AccountServiceImplTest {
         Assert.assertEquals(BigDecimal.ONE, payment.getRate());
         Assert.assertNotNull(payment.getAccount());
 
-        Mockito.verify(accountRepository).save(eq(buildNewAccount()));
+        Mockito.verify(accountRepository).save(eq(buildNewAccount(BigDecimal.TEN)));
 
     }
 
@@ -217,20 +202,20 @@ public class AccountServiceImplTest {
 
     private List<Payment> buildPaymentList() {
         List<Payment> paymentList = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            Payment payment = new Payment();
-            payment.setSum(BigDecimal.valueOf(1L + i));
-            CurrencyEntity currencyEntity = new CurrencyEntity();
-            if (i % 2 == 0) {
-                currencyEntity.setCurrency(Currency.USD);
-            } else {
-                currencyEntity.setCurrency(Currency.EUR);
-            }
+        paymentList.add(getPayment(BigDecimal.ONE, Currency.USD));
+        paymentList.add(getPayment(BigDecimal.valueOf(2), Currency.EUR));
+        paymentList.add(getPayment(BigDecimal.valueOf(3), Currency.USD));
 
-            payment.setCurrencyEntity(currencyEntity);
-            paymentList.add(payment);
-        }
         return paymentList;
+    }
+
+    private Payment getPayment(BigDecimal sum, Currency currency) {
+        Payment payment = new Payment();
+        payment.setSum(sum);
+        CurrencyEntity currencyEntity = new CurrencyEntity();
+        currencyEntity.setCurrency(currency);
+        payment.setCurrencyEntity(currencyEntity);
+        return payment;
     }
 
     @Test
