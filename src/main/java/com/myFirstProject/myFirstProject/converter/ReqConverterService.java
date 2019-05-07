@@ -11,4 +11,5 @@ public interface ReqConverterService {
     Source convert (SourceReq sourceReq);
     User convert (UserReq userReq);
     Basket convert (BasketReq basketReq);
+    PromoCode convert(PromoCodeReq promoCodeReq);
 }

@@ -222,7 +222,7 @@ public class AccountServiceImplTest {
     @Test
     public void payForArticlesWithPercentPromoCode() {
 //        Given
-        BigDecimal tax = BigDecimal.valueOf(2);
+        BigDecimal sum = BigDecimal.valueOf(2);
         Long id = 1L;
         PromoCode promoCode = buildPromoCode();
         promoCode.setPromoType(PromoType.PERCENT);
@@ -234,7 +234,7 @@ public class AccountServiceImplTest {
 //        за допомогою рефлекшен ютілс
         ReflectionTestUtils.setField(accountService, "negativeBalanceOfUser", BigDecimal.valueOf(5));
 //        When
-        accountService.payForArticles(tax, id, promoCode);
+        accountService.payForArticles(sum, id, promoCode);
 //        Then
         Assert.assertEquals(BigDecimal.valueOf(8.02), account.getSum());
     }
@@ -242,7 +242,7 @@ public class AccountServiceImplTest {
     @Test
     public void payForArticlesWithMoneyPromoCode() {
 //        Given
-        BigDecimal tax = BigDecimal.valueOf(2);
+        BigDecimal sum = BigDecimal.valueOf(2);
         Long id = 1L;
         PromoCode promoCode = buildPromoCode();
         promoCode.setPromoType(PromoType.MONEY);
@@ -254,7 +254,7 @@ public class AccountServiceImplTest {
 //        за допомогою рефлекшен ютілс
         ReflectionTestUtils.setField(accountService, "negativeBalanceOfUser", BigDecimal.valueOf(5));
 //        When
-        accountService.payForArticles(tax, id, promoCode);
+        accountService.payForArticles(sum, id, promoCode);
 //        Then
         Assert.assertEquals(BigDecimal.valueOf(9), account.getSum());
     }
@@ -286,19 +286,19 @@ public class AccountServiceImplTest {
     @Test(expected = UserHasNotAccountException.class)
     public void payForArticlesWhenThereIsNoAccount() {
 //        Given
-        BigDecimal tax = BigDecimal.ONE;
+        BigDecimal sum = BigDecimal.ONE;
         PromoCode promoCode = buildPromoCode();
         AccountServiceImpl accountService = new AccountServiceImpl();
         accountService.setAccountRepository(accountRepository);
         Mockito.when(accountRepository.findAccountByUserId(1L)).thenReturn(null);
 //        When
-        accountService.payForArticles(tax, 1L, promoCode);
+        accountService.payForArticles(sum, 1L, promoCode);
     }
 
     @Test(expected = NotEnoughManyOnAccountException.class)
     public void payForArticlesWhenNotEnoughMoney() {
 //        Given
-        BigDecimal tax = BigDecimal.TEN;
+        BigDecimal sum = BigDecimal.TEN;
         Long id = 1L;
         PromoCode promoCode = buildPromoCode();
         AccountServiceImpl accountService = new AccountServiceImpl();
@@ -307,7 +307,7 @@ public class AccountServiceImplTest {
         Mockito.when(accountRepository.findAccountByUserId(id)).thenReturn(account);
         ReflectionTestUtils.setField(accountService, "negativeBalanceOfUser", BigDecimal.valueOf(5));
 //        When
-        accountService.payForArticles(tax, id, promoCode);
+        accountService.payForArticles(sum, id, promoCode);
     }
 
     @Test

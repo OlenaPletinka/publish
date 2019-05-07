@@ -168,28 +168,28 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void payForArticles(BigDecimal tacks, Long id, PromoCode promoCode) {
+    public void payForArticles(BigDecimal sum, Long id, PromoCode promoCode) {
         Account account = accountRepository.findAccountByUserId(id);
-        checkAccount(account, tacks);
-        BigDecimal taxPlusDiscount = findSumOfOrder(promoCode, tacks);
+        checkAccount(account, sum);
+        BigDecimal taxPlusDiscount = findSumOfOrder(promoCode, sum);
         BigDecimal subtract = account.getSum().subtract(taxPlusDiscount);
         account.setSum(subtract);
-        logger.info(String.format("User with id - %d payed - %s, his account - %s", id, tacks, subtract));
+        logger.info(String.format("User with id - %d payed - %s, his account - %s", id, sum, subtract));
     }
 
     private BigDecimal findSumOfOrder(PromoCode promoCode, BigDecimal tacks) {
-        if (promoCode.getPromoType().equals(PromoType.PERCENT)){
+        if (promoCode.getPromoType() == PromoType.PERCENT) {
             BigDecimal percent = promoCode.getValue().divide(BigDecimal.valueOf(100));
             BigDecimal fraction = BigDecimal.ONE.subtract(percent);
             return tacks.multiply(fraction);
-        }else {
+        } else {
             checkPromoCode(tacks, promoCode);
             return tacks.subtract(promoCode.getValue());
         }
     }
 
     private void checkPromoCode(BigDecimal tacks, PromoCode promoCode) {
-        if (promoCode.getValue().compareTo(tacks)>=0){
+        if (promoCode.getValue().compareTo(tacks) >= 0) {
             throw new PromoCodeNotValidException(String.format("PromoCode with id - %s is bigger then sum from basket.", promoCode.getId()));
         }
     }
@@ -217,7 +217,7 @@ public class AccountServiceImpl implements AccountService {
     private void checkAccount(Account account, BigDecimal tacks) {
         if (account == null) {
             throw new UserHasNotAccountException("User have not account");
-        } else if (account.getSum().compareTo(tacks.subtract(negativeBalanceOfUser)) <=0) {
+        } else if (account.getSum().compareTo(tacks.subtract(negativeBalanceOfUser)) <= 0) {
             throw new NotEnoughManyOnAccountException(String.format("%s it is does not enough to pay", account.getSum()));
         }
     }

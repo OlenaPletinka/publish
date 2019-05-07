@@ -18,5 +18,5 @@ public class BasketReq {
     private BigDecimal sum;
     private Currency currency;
     private List<Article> articleList = new ArrayList<>();
-    private PromoCode promoCode;
+    private String promoCodeId;
 }
