@@ -2,8 +2,8 @@ package com.myFirstProject.myFirstProject.service;
 
 import com.myFirstProject.myFirstProject.converter.ReqConverterService;
 import com.myFirstProject.myFirstProject.dto.BasketReq;
+import com.myFirstProject.myFirstProject.exception.PromoCodeNotValidException;
 import com.myFirstProject.myFirstProject.exception.SumFromBasketReqIsNotValidException;
-import com.myFirstProject.myFirstProject.model.Article;
 import com.myFirstProject.myFirstProject.model.Basket;
 import com.myFirstProject.myFirstProject.repository.BasketRepository;
 import org.slf4j.Logger;
@@ -39,16 +39,26 @@ public class BasketServiceImpl implements BasketService {
     public Long saveBasket(BasketReq basketReq) {
         logger.info("Get order to update {}", basketReq);
         sumValidation(basketReq);
+        promoCodeValidation(basketReq);
         Basket order = reqConverterService.convert(basketReq);
         LocalDateTime time = LocalDateTime.now();
         order.setExpiredTime(time.plusDays(1L));
         Basket order1 = basketRepository.save(order);
         Long id = order1.getId();
         logger.info("Basket saved with id {}", id);
-        accountService.payForArticles(basketReq.getSum(), basketReq.getUser().getId());
+        accountService.payForArticles(basketReq.getSum(), basketReq.getUser().getId(), basketReq.getPromoCode());
+        basketReq.getPromoCode().setValid(false);
         logger.info(String.format("%s was payed for order", basketReq.getSum()));
 
         return id;
+    }
+
+    private void promoCodeValidation(BasketReq basketReq) {
+        if (!basketReq.getPromoCode().getValid()){
+            throw new PromoCodeNotValidException(String.format("PromoCode with id - %s have been used", basketReq.getId()));
+        }else if (basketReq.getPromoCode().getExpiredDate().compareTo(LocalDateTime.now())<0){
+            throw new PromoCodeNotValidException(String.format("PromoCode with id - %s expired", basketReq.getId()));
+        }
     }
 
     @Override

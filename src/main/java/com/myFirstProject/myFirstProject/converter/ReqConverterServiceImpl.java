@@ -74,6 +74,7 @@ public class ReqConverterServiceImpl implements ReqConverterService {
         basket.setSum(basketReq.getSum());
         basket.setCurrency(basketReq.getCurrency());
         basket.setArticleList(basketReq.getArticleList());
+        basket.setPromoCode(basketReq.getPromoCode());
         return basket;
     }
 }

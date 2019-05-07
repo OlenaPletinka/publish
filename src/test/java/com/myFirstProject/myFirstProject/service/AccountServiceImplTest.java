@@ -3,7 +3,9 @@ package com.myFirstProject.myFirstProject.service;
 import com.myFirstProject.myFirstProject.dto.PaymentReq;
 import com.myFirstProject.myFirstProject.enums.Currency;
 import com.myFirstProject.myFirstProject.enums.PaymentSystem;
+import com.myFirstProject.myFirstProject.enums.PromoType;
 import com.myFirstProject.myFirstProject.exception.NotEnoughManyOnAccountException;
+import com.myFirstProject.myFirstProject.exception.PromoCodeNotValidException;
 import com.myFirstProject.myFirstProject.exception.UserHasNotAccountException;
 import com.myFirstProject.myFirstProject.exception.UserNotFoundException;
 import com.myFirstProject.myFirstProject.model.*;
@@ -76,7 +78,7 @@ public class AccountServiceImplTest {
     }
 
     private Account buildAccount() {
-        Account account = buildNewAccount(BigDecimal.ONE);
+        Account account = buildNewAccount(BigDecimal.TEN);
         List<Payment> payments = new ArrayList<>();
         Payment payment = new Payment();
         payments.add(payment);
@@ -130,7 +132,6 @@ public class AccountServiceImplTest {
 //        WHEN
         accountService.updateAccount(paymentReq);
 //        THEN
-        //не знаю чи треба перевіряти метод кріейт акаунт чи підійде підставити any()
         Mockito.verify(paymentRepository).save(paymentArgumentCaptor.capture());
         Payment payment = paymentArgumentCaptor.getValue();
         Assert.assertNotNull(payment);
@@ -219,10 +220,12 @@ public class AccountServiceImplTest {
     }
 
     @Test
-    public void payForArticles() {
+    public void payForArticlesWithPercentPromoCode() {
 //        Given
-        BigDecimal tax = BigDecimal.valueOf(0.1);
+        BigDecimal tax = BigDecimal.valueOf(2);
         Long id = 1L;
+        PromoCode promoCode = buildPromoCode();
+        promoCode.setPromoType(PromoType.PERCENT);
         AccountServiceImpl accountService = new AccountServiceImpl();
         accountService.setAccountRepository(accountRepository);
         Account account = buildAccount();
@@ -231,20 +234,65 @@ public class AccountServiceImplTest {
 //        за допомогою рефлекшен ютілс
         ReflectionTestUtils.setField(accountService, "negativeBalanceOfUser", BigDecimal.valueOf(5));
 //        When
-        accountService.payForArticles(tax, id);
+        accountService.payForArticles(tax, id, promoCode);
 //        Then
-        Assert.assertEquals(BigDecimal.valueOf(0.9), account.getSum());
+        Assert.assertEquals(BigDecimal.valueOf(8.02), account.getSum());
+    }
+
+    @Test
+    public void payForArticlesWithMoneyPromoCode() {
+//        Given
+        BigDecimal tax = BigDecimal.valueOf(2);
+        Long id = 1L;
+        PromoCode promoCode = buildPromoCode();
+        promoCode.setPromoType(PromoType.MONEY);
+        AccountServiceImpl accountService = new AccountServiceImpl();
+        accountService.setAccountRepository(accountRepository);
+        Account account = buildAccount();
+        Mockito.when(accountRepository.findAccountByUserId(id)).thenReturn(account);
+//        у тестах конфігурабельні поля не доступні(з  @Value("${negative.balanceOfUser}"), тому їх сетимо
+//        за допомогою рефлекшен ютілс
+        ReflectionTestUtils.setField(accountService, "negativeBalanceOfUser", BigDecimal.valueOf(5));
+//        When
+        accountService.payForArticles(tax, id, promoCode);
+//        Then
+        Assert.assertEquals(BigDecimal.valueOf(9), account.getSum());
+    }
+
+    @Test(expected = PromoCodeNotValidException.class)
+    public void payForArticlesWithMoneyPromoCodeException() {
+//        Given
+        BigDecimal tax = BigDecimal.valueOf(1);
+        Long id = 1L;
+        PromoCode promoCode = buildPromoCode();
+        promoCode.setPromoType(PromoType.MONEY);
+        AccountServiceImpl accountService = new AccountServiceImpl();
+        accountService.setAccountRepository(accountRepository);
+        Account account = buildAccount();
+        Mockito.when(accountRepository.findAccountByUserId(id)).thenReturn(account);
+//        у тестах конфігурабельні поля не доступні(з  @Value("${negative.balanceOfUser}"), тому їх сетимо
+//        за допомогою рефлекшен ютілс
+        ReflectionTestUtils.setField(accountService, "negativeBalanceOfUser", BigDecimal.valueOf(5));
+//        When
+        accountService.payForArticles(tax, id, promoCode);
+    }
+
+    private PromoCode buildPromoCode() {
+        PromoCode promoCode = new PromoCode();
+        promoCode.setValue(BigDecimal.valueOf(1));
+        return promoCode;
     }
 
     @Test(expected = UserHasNotAccountException.class)
     public void payForArticlesWhenThereIsNoAccount() {
 //        Given
         BigDecimal tax = BigDecimal.ONE;
+        PromoCode promoCode = buildPromoCode();
         AccountServiceImpl accountService = new AccountServiceImpl();
         accountService.setAccountRepository(accountRepository);
         Mockito.when(accountRepository.findAccountByUserId(1L)).thenReturn(null);
 //        When
-        accountService.payForArticles(tax, 1L);
+        accountService.payForArticles(tax, 1L, promoCode);
     }
 
     @Test(expected = NotEnoughManyOnAccountException.class)
@@ -252,13 +300,14 @@ public class AccountServiceImplTest {
 //        Given
         BigDecimal tax = BigDecimal.TEN;
         Long id = 1L;
+        PromoCode promoCode = buildPromoCode();
         AccountServiceImpl accountService = new AccountServiceImpl();
         accountService.setAccountRepository(accountRepository);
         Account account = buildAccount();
         Mockito.when(accountRepository.findAccountByUserId(id)).thenReturn(account);
         ReflectionTestUtils.setField(accountService, "negativeBalanceOfUser", BigDecimal.valueOf(5));
 //        When
-        accountService.payForArticles(tax, id);
+        accountService.payForArticles(tax, id, promoCode);
     }
 
     @Test

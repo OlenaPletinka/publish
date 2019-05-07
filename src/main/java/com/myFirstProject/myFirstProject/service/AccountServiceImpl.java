@@ -1,7 +1,9 @@
 package com.myFirstProject.myFirstProject.service;
 
 import com.myFirstProject.myFirstProject.dto.PaymentReq;
+import com.myFirstProject.myFirstProject.enums.PromoType;
 import com.myFirstProject.myFirstProject.exception.NotEnoughManyOnAccountException;
+import com.myFirstProject.myFirstProject.exception.PromoCodeNotValidException;
 import com.myFirstProject.myFirstProject.exception.UserHasNotAccountException;
 import com.myFirstProject.myFirstProject.exception.UserNotFoundException;
 import com.myFirstProject.myFirstProject.model.*;
@@ -166,12 +168,30 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public void payForArticles(BigDecimal tacks, Long id) {
+    public void payForArticles(BigDecimal tacks, Long id, PromoCode promoCode) {
         Account account = accountRepository.findAccountByUserId(id);
         checkAccount(account, tacks);
-        BigDecimal subtract = account.getSum().subtract(tacks);
+        BigDecimal taxPlusDiscount = findSumOfOrder(promoCode, tacks);
+        BigDecimal subtract = account.getSum().subtract(taxPlusDiscount);
         account.setSum(subtract);
         logger.info(String.format("User with id - %d payed - %s, his account - %s", id, tacks, subtract));
+    }
+
+    private BigDecimal findSumOfOrder(PromoCode promoCode, BigDecimal tacks) {
+        if (promoCode.getPromoType().equals(PromoType.PERCENT)){
+            BigDecimal percent = promoCode.getValue().divide(BigDecimal.valueOf(100));
+            BigDecimal fraction = BigDecimal.ONE.subtract(percent);
+            return tacks.multiply(fraction);
+        }else {
+            checkPromoCode(tacks, promoCode);
+            return tacks.subtract(promoCode.getValue());
+        }
+    }
+
+    private void checkPromoCode(BigDecimal tacks, PromoCode promoCode) {
+        if (promoCode.getValue().compareTo(tacks)>=0){
+            throw new PromoCodeNotValidException(String.format("PromoCode with id - %s is bigger then sum from basket.", promoCode.getId()));
+        }
     }
 
     @Override
@@ -197,7 +217,7 @@ public class AccountServiceImpl implements AccountService {
     private void checkAccount(Account account, BigDecimal tacks) {
         if (account == null) {
             throw new UserHasNotAccountException("User have not account");
-        } else if (account.getSum().compareTo(tacks.subtract(negativeBalanceOfUser)) < 1) {
+        } else if (account.getSum().compareTo(tacks.subtract(negativeBalanceOfUser)) <=0) {
             throw new NotEnoughManyOnAccountException(String.format("%s it is does not enough to pay", account.getSum()));
         }
     }
