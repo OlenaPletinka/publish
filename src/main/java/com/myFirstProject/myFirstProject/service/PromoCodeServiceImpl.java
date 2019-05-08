@@ -33,7 +33,7 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     @Transactional
     @Override
     public void deleteExpiredPromoCode(LocalDateTime time) {
-        List<PromoCode> promoCodes = promoCodeRepository.findByExpiredDateLessThan(time);
+        List<PromoCode> promoCodes = promoCodeRepository.findByExpiredLessThan(time);
         logger.info(String.format("Find %d promo codes with expired date", promoCodes.size()));
         List<PromoCode> promoCodeForDelete = new ArrayList<>();
         promoCodes.stream().filter(promoCode -> promoCode.getValid().equals(true))

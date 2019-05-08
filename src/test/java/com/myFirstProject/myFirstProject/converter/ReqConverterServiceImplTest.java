@@ -1,6 +1,7 @@
 package com.myFirstProject.myFirstProject.converter;
 
 import com.myFirstProject.myFirstProject.dto.*;
+import com.myFirstProject.myFirstProject.enums.PromoType;
 import com.myFirstProject.myFirstProject.model.*;
 import com.myFirstProject.myFirstProject.service.PasswordMD5Service;
 import org.junit.Assert;
@@ -11,6 +12,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import static com.myFirstProject.myFirstProject.enums.Currency.USD;
@@ -145,5 +148,35 @@ public class ReqConverterServiceImplTest {
         basketReq.setCurrency(USD);
         basketReq.setArticleList(new ArrayList<>());
         return basketReq;
+    }
+
+    @Test
+    public void convert5() {
+//        Given
+        PromoCodeReq promoCodeReq = buildPromoCodeReq();
+        ReqConverterServiceImpl reqConverterService = new ReqConverterServiceImpl();
+//        When
+        PromoCode actualResult = reqConverterService.convert(promoCodeReq);
+//        Then
+        Assert.assertNotNull(actualResult);
+        Assert.assertEquals("PROMO_10", actualResult.getId());
+        Assert.assertEquals(PromoType.PERCENT, actualResult.getPromoType());
+        Assert.assertEquals(BigDecimal.TEN, actualResult.getValue());
+        Assert.assertEquals("2019-06-30T12:00", actualResult.getExpired().toString());
+        Assert.assertEquals(true, actualResult.getValid());
+    }
+
+    private PromoCodeReq buildPromoCodeReq() {
+        PromoCodeReq promoCodeReq = new PromoCodeReq();
+        promoCodeReq.setId("PROMO_10");
+        promoCodeReq.setPromoType(PromoType.PERCENT);
+        promoCodeReq.setValue(BigDecimal.TEN);
+
+        String str = "2019-06-30 12:00:00";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+        promoCodeReq.setExpired(dateTime);
+
+        return promoCodeReq;
     }
 }

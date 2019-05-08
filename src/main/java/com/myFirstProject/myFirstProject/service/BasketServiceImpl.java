@@ -24,22 +24,22 @@ import java.util.Optional;
 
 @Service
 public class BasketServiceImpl implements BasketService {
-    private Logger logger = LoggerFactory.getLogger(BasketServiceImpl.class);
-
     @Value("${cost.one.article}")
     private BigDecimal cost;
 
-    @Autowired
+    private Logger logger = LoggerFactory.getLogger(BasketServiceImpl.class);
     private BasketRepository basketRepository;
-
-    @Autowired
     private AccountService accountService;
-
-    @Autowired
     private ReqConverterService reqConverterService;
+    private PromoCodeRepository promoCodeRepository;
 
     @Autowired
-    private PromoCodeRepository promoCodeRepository;
+    public BasketServiceImpl(BasketRepository basketRepository, AccountService accountService, ReqConverterService reqConverterService, PromoCodeRepository promoCodeRepository) {
+        this.basketRepository = basketRepository;
+        this.accountService = accountService;
+        this.reqConverterService = reqConverterService;
+        this.promoCodeRepository = promoCodeRepository;
+    }
 
     @Override
     @Transactional
@@ -74,8 +74,9 @@ public class BasketServiceImpl implements BasketService {
     }
 
     private PromoCode getPromoCode(BasketReq basketReq) {
-        Optional<PromoCode> code = promoCodeRepository.findById(basketReq.getPromoCodeId());
-        return code.get();
+        PromoCode promoCode = promoCodeRepository.findById(basketReq.getId());
+
+        return promoCode;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package com.myFirstProject.myFirstProject.service;
 
 import com.myFirstProject.myFirstProject.converter.ReqConverterService;
-import com.myFirstProject.myFirstProject.converter.ReqConverterServiceImpl;
 import com.myFirstProject.myFirstProject.dto.PromoCodeReq;
 import com.myFirstProject.myFirstProject.model.PromoCode;
 import com.myFirstProject.myFirstProject.repository.PromoCodeRepository;
@@ -17,8 +16,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
-
 @RunWith(MockitoJUnitRunner.class)
 public class PromoCodeServiceImplTest {
     @Mock
@@ -33,34 +30,33 @@ public class PromoCodeServiceImplTest {
         LocalDateTime time = LocalDateTime.now();
         PromoCodeServiceImpl promoCodeService = new PromoCodeServiceImpl();
         promoCodeService.setPromoCodeRepository(promoCodeRepository);
-        Mockito.when(promoCodeRepository.findByExpiredDateLessThan(time)).thenReturn(buildListOfPromoCode());
+        Mockito.when(promoCodeRepository.findByExpiredLessThan(time)).thenReturn(buildListOfPromoCode());
 //        When
         promoCodeService.deleteExpiredPromoCode(time);
 //        Then
-        Mockito.verify(promoCodeRepository).findByExpiredDateLessThan(time);
+        Mockito.verify(promoCodeRepository).findByExpiredLessThan(time);
         Mockito.verify(promoCodeRepository).deleteAll(getValidPromoCodes());
-
-
     }
 
     private List<PromoCode> buildListOfPromoCode() {
         List<PromoCode> promoCodes = getValidPromoCodes();
-        PromoCode promoCode2 = getPromoCode();
-        promoCode2.setValid(false);
-        promoCodes.add(promoCode2);
+        promoCodes.add(getValidPromoCode(false));
 
         return promoCodes;
     }
 
     private List<PromoCode> getValidPromoCodes() {
         List<PromoCode> promoCodes = new ArrayList<>();
-        PromoCode promoCode = getPromoCode();
-        promoCode.setValid(true);
-        promoCodes.add(promoCode);
-        PromoCode promoCode1 = getPromoCode();
-        promoCode1.setValid(true);
-        promoCodes.add(promoCode1);
+        promoCodes.add(getValidPromoCode(true));
+        promoCodes.add(getValidPromoCode(true));
+
         return promoCodes;
+    }
+
+    private PromoCode getValidPromoCode(boolean b) {
+        PromoCode promoCode = getPromoCode();
+        promoCode.setValid(b);
+        return promoCode;
     }
 
     private PromoCode getPromoCode() {
@@ -84,7 +80,5 @@ public class PromoCodeServiceImplTest {
 //        Then
         Assert.assertEquals("PROMO_10", actualResult);
         Mockito.verify(promoCodeRepository).save(getPromoCode());
-
-
     }
 }

@@ -23,7 +23,7 @@ public class PromoCodeController {
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity savePromoCode(@RequestBody PromoCodeReq promoCodeReq) {
-        validForCreate(promoCodeReq);
+        validateCreate(promoCodeReq);
         String id = promoCodeService.save(promoCodeReq);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -34,7 +34,7 @@ public class PromoCodeController {
         return ResponseEntity.created(location).build();
     }
 
-    private void validForCreate(PromoCodeReq promoCodeReq) {
+    private void validateCreate(PromoCodeReq promoCodeReq) {
         if (promoCodeReq == null|| promoCodeReq.getId() == null || promoCodeReq.getExpired() == null ||
                 promoCodeReq.getPromoType() == null || promoCodeReq.getValue() == null ||
                     promoCodeReq.getExpired().compareTo(LocalDateTime.now())<1){

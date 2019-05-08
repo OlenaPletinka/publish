@@ -177,19 +177,19 @@ public class AccountServiceImpl implements AccountService {
         logger.info(String.format("User with id - %d payed - %s, his account - %s", id, sum, subtract));
     }
 
-    private BigDecimal findSumOfOrder(PromoCode promoCode, BigDecimal tacks) {
+    private BigDecimal findSumOfOrder(PromoCode promoCode, BigDecimal sum) {
         if (promoCode.getPromoType() == PromoType.PERCENT) {
             BigDecimal percent = promoCode.getValue().divide(BigDecimal.valueOf(100));
             BigDecimal fraction = BigDecimal.ONE.subtract(percent);
-            return tacks.multiply(fraction);
+            return sum.multiply(fraction);
         } else {
-            checkPromoCode(tacks, promoCode);
-            return tacks.subtract(promoCode.getValue());
+            checkPromoCode(sum, promoCode);
+            return sum.subtract(promoCode.getValue());
         }
     }
 
-    private void checkPromoCode(BigDecimal tacks, PromoCode promoCode) {
-        if (promoCode.getValue().compareTo(tacks) >= 0) {
+    private void checkPromoCode(BigDecimal sum, PromoCode promoCode) {
+        if (promoCode.getValue().compareTo(sum) >= 0) {
             throw new PromoCodeNotValidException(String.format("PromoCode with id - %s is bigger then sum from basket.", promoCode.getId()));
         }
     }
@@ -214,10 +214,10 @@ public class AccountServiceImpl implements AccountService {
         return totalRevenue;
     }
 
-    private void checkAccount(Account account, BigDecimal tacks) {
+    private void checkAccount(Account account, BigDecimal sum) {
         if (account == null) {
             throw new UserHasNotAccountException("User have not account");
-        } else if (account.getSum().compareTo(tacks.subtract(negativeBalanceOfUser)) <= 0) {
+        } else if (account.getSum().compareTo(sum.subtract(negativeBalanceOfUser)) <= 0) {
             throw new NotEnoughManyOnAccountException(String.format("%s it is does not enough to pay", account.getSum()));
         }
     }
