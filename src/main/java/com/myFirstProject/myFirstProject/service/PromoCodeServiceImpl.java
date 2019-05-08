@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PromoCodeServiceImpl implements PromoCodeService {
@@ -35,12 +36,12 @@ public class PromoCodeServiceImpl implements PromoCodeService {
     public void deleteExpiredPromoCode(LocalDateTime time) {
         List<PromoCode> promoCodes = promoCodeRepository.findByExpiredLessThan(time);
         logger.info(String.format("Find %d promo codes with expired date", promoCodes.size()));
-        List<PromoCode> promoCodeForDelete = new ArrayList<>();
-        promoCodes.stream().filter(promoCode -> promoCode.getValid().equals(true))
-                .forEach(promoCodeForDelete::add);
-        logger.info(String.format("Find %d promo codes for delete which was not use", promoCodeForDelete.size()));
-        promoCodeRepository.deleteAll(promoCodeForDelete);
-        logger.info(String.format("%d promo codes was delete", promoCodeForDelete.size()));
+        List promoCodesForDelete = promoCodes.stream()
+                .filter(PromoCode::getValid)
+                .collect(Collectors.toList());
+        logger.info(String.format("Find %d promo codes for delete which was not use", promoCodesForDelete.size()));
+        promoCodeRepository.deleteAll(promoCodesForDelete);
+        logger.info(String.format("%d promo codes was delete", promoCodesForDelete.size()));
     }
 
     @Transactional

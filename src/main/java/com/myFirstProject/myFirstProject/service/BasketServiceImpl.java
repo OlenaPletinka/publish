@@ -62,19 +62,19 @@ public class BasketServiceImpl implements BasketService {
     }
 
     private PromoCode getPromoCodeFromDB(BasketReq basketReq) {
-        PromoCode promoCode = getPromoCode(basketReq);
+        PromoCode promoCode = getPromoCode(basketReq.getId());
         if (promoCode == null) {
-            throw new PromoCodeNotFoundException(String.format("Promo code with id - %s not found", basketReq.getPromoCodeId()));
+            throw new PromoCodeNotFoundException(String.format("Promo code with id - %s is not found", basketReq.getPromoCodeId()));
         } else if (!promoCode.getValid()) {
-            throw new PromoCodeNotValidException(String.format("PromoCode with id - %s have been used", basketReq.getId()));
+            throw new PromoCodeNotValidException(String.format("PromoCode with id - %s has been used", basketReq.getId()));
         } else if (promoCode.getExpired().compareTo(LocalDateTime.now()) < 0) {
-            throw new PromoCodeNotValidException(String.format("PromoCode with id - %s expired", basketReq.getId()));
+            throw new PromoCodeNotValidException(String.format("PromoCode with id - %s  was expired", basketReq.getId()));
         }
         return promoCode;
     }
 
-    private PromoCode getPromoCode(BasketReq basketReq) {
-        PromoCode promoCode = promoCodeRepository.findById(basketReq.getId());
+    private PromoCode getPromoCode(Long id) {
+        PromoCode promoCode = promoCodeRepository.findById(id);
 
         return promoCode;
     }

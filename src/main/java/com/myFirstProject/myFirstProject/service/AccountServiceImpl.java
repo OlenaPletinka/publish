@@ -170,7 +170,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public void payForArticles(BigDecimal sum, Long id, PromoCode promoCode) {
         Account account = accountRepository.findAccountByUserId(id);
-        checkAccount(account, sum);
+        validateAccount(account, sum);
         BigDecimal taxPlusDiscount = findSumOfOrder(promoCode, sum);
         BigDecimal subtract = account.getSum().subtract(taxPlusDiscount);
         account.setSum(subtract);
@@ -183,14 +183,14 @@ public class AccountServiceImpl implements AccountService {
             BigDecimal fraction = BigDecimal.ONE.subtract(percent);
             return sum.multiply(fraction);
         } else {
-            checkPromoCode(sum, promoCode);
+            validatePromoCode(sum, promoCode);
             return sum.subtract(promoCode.getValue());
         }
     }
 
-    private void checkPromoCode(BigDecimal sum, PromoCode promoCode) {
+    private void validatePromoCode(BigDecimal sum, PromoCode promoCode) {
         if (promoCode.getValue().compareTo(sum) >= 0) {
-            throw new PromoCodeNotValidException(String.format("PromoCode with id - %s is bigger then sum from basket.", promoCode.getId()));
+            throw new PromoCodeNotValidException(String.format("PromoCode with id - %s is bigger than sum from basket.", promoCode.getId()));
         }
     }
 
@@ -214,7 +214,7 @@ public class AccountServiceImpl implements AccountService {
         return totalRevenue;
     }
 
-    private void checkAccount(Account account, BigDecimal sum) {
+    private void validateAccount(Account account, BigDecimal sum) {
         if (account == null) {
             throw new UserHasNotAccountException("User have not account");
         } else if (account.getSum().compareTo(sum.subtract(negativeBalanceOfUser)) <= 0) {
