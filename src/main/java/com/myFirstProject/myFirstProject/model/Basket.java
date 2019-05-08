@@ -36,4 +36,8 @@ public class Basket {
     @ManyToMany
     @JoinTable(name = "ordered_articles", joinColumns = {@JoinColumn(name = "basket_id", referencedColumnName = "id")}, inverseJoinColumns = {@JoinColumn(name = "article_id", referencedColumnName = "id")})
     private List<Article> articleList = new ArrayList<>();
+
+    @OneToOne
+    @JoinColumn
+    private PromoCode promoCode;
 }

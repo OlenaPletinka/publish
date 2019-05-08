@@ -2,6 +2,7 @@ package com.myFirstProject.myFirstProject.dto;
 
 import com.myFirstProject.myFirstProject.model.Article;
 import com.myFirstProject.myFirstProject.enums.Currency;
+import com.myFirstProject.myFirstProject.model.PromoCode;
 import com.myFirstProject.myFirstProject.model.User;
 import lombok.Data;
 
@@ -17,4 +18,5 @@ public class BasketReq {
     private BigDecimal sum;
     private Currency currency;
     private List<Article> articleList = new ArrayList<>();
+    private String promoCodeId;
 }

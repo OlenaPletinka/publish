@@ -2,10 +2,13 @@ package com.myFirstProject.myFirstProject.service;
 
 import com.myFirstProject.myFirstProject.converter.ReqConverterService;
 import com.myFirstProject.myFirstProject.dto.BasketReq;
+import com.myFirstProject.myFirstProject.exception.PromoCodeNotFoundException;
+import com.myFirstProject.myFirstProject.exception.PromoCodeNotValidException;
 import com.myFirstProject.myFirstProject.exception.SumFromBasketReqIsNotValidException;
-import com.myFirstProject.myFirstProject.model.Article;
 import com.myFirstProject.myFirstProject.model.Basket;
+import com.myFirstProject.myFirstProject.model.PromoCode;
 import com.myFirstProject.myFirstProject.repository.BasketRepository;
+import com.myFirstProject.myFirstProject.repository.PromoCodeRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,38 +20,63 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class BasketServiceImpl implements BasketService {
-    private Logger logger = LoggerFactory.getLogger(BasketServiceImpl.class);
-
     @Value("${cost.one.article}")
     private BigDecimal cost;
 
-    @Autowired
+    private Logger logger = LoggerFactory.getLogger(BasketServiceImpl.class);
     private BasketRepository basketRepository;
-
-    @Autowired
     private AccountService accountService;
+    private ReqConverterService reqConverterService;
+    private PromoCodeRepository promoCodeRepository;
 
     @Autowired
-    private ReqConverterService reqConverterService;
+    public BasketServiceImpl(BasketRepository basketRepository, AccountService accountService, ReqConverterService reqConverterService, PromoCodeRepository promoCodeRepository) {
+        this.basketRepository = basketRepository;
+        this.accountService = accountService;
+        this.reqConverterService = reqConverterService;
+        this.promoCodeRepository = promoCodeRepository;
+    }
 
     @Override
     @Transactional
     public Long saveBasket(BasketReq basketReq) {
         logger.info("Get order to update {}", basketReq);
         sumValidation(basketReq);
+        PromoCode promoCode = getPromoCodeFromDB(basketReq);
         Basket order = reqConverterService.convert(basketReq);
+        order.setPromoCode(promoCode);
         LocalDateTime time = LocalDateTime.now();
         order.setExpiredTime(time.plusDays(1L));
-        Basket order1 = basketRepository.save(order);
-        Long id = order1.getId();
+        Basket savedOrder = basketRepository.save(order);
+        Long id = savedOrder.getId();
         logger.info("Basket saved with id {}", id);
-        accountService.payForArticles(basketReq.getSum(), basketReq.getUser().getId());
+        accountService.payForArticles(basketReq.getSum(), basketReq.getUser().getId(), promoCode);
+        promoCode.setValid(false);
         logger.info(String.format("%s was payed for order", basketReq.getSum()));
 
         return id;
+    }
+
+    private PromoCode getPromoCodeFromDB(BasketReq basketReq) {
+        PromoCode promoCode = getPromoCode(basketReq.getId());
+        if (promoCode == null) {
+            throw new PromoCodeNotFoundException(String.format("Promo code with id - %s is not found", basketReq.getPromoCodeId()));
+        } else if (!promoCode.getValid()) {
+            throw new PromoCodeNotValidException(String.format("PromoCode with id - %s has been used", basketReq.getId()));
+        } else if (promoCode.getExpired().compareTo(LocalDateTime.now()) < 0) {
+            throw new PromoCodeNotValidException(String.format("PromoCode with id - %s  was expired", basketReq.getId()));
+        }
+        return promoCode;
+    }
+
+    private PromoCode getPromoCode(Long id) {
+        PromoCode promoCode = promoCodeRepository.findById(id);
+
+        return promoCode;
     }
 
     @Override
@@ -72,7 +100,7 @@ public class BasketServiceImpl implements BasketService {
         List<Basket> basketList = new ArrayList<>();
         baskets.forEach(basketList::add);
         for (Basket basket : basketList) {
-            if (basket.getSum()!=null) {
+            if (basket.getSum() != null) {
                 revenueFromBaskets = revenueFromBaskets.add(basket.getSum());
             }
         }

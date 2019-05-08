@@ -20,12 +20,18 @@ import java.util.List;
 @Component
 public class TaxServiceScheduler {
     private Logger logger = LoggerFactory.getLogger(TaxServiceScheduler.class);
-
-    @Autowired
     private PaymentRepository paymentRepository;
+    private AccountService accountService;
 
     @Autowired
-    private AccountService accountService;
+    public void setPaymentRepository(PaymentRepository paymentRepository) {
+        this.paymentRepository = paymentRepository;
+    }
+
+    @Autowired
+    public void setAccountService(AccountService accountService) {
+        this.accountService = accountService;
+    }
 
     @Transactional
     @Scheduled(cron = "0 0 0 1 * *")

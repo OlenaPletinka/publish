@@ -74,6 +74,19 @@ public class ReqConverterServiceImpl implements ReqConverterService {
         basket.setSum(basketReq.getSum());
         basket.setCurrency(basketReq.getCurrency());
         basket.setArticleList(basketReq.getArticleList());
+
         return basket;
+    }
+
+    @Override
+    public PromoCode convert(PromoCodeReq promoCodeReq) {
+        PromoCode promoCode = new PromoCode();
+        promoCode.setId(promoCodeReq.getId());
+        promoCode.setPromoType(promoCodeReq.getPromoType());
+        promoCode.setValue(promoCodeReq.getValue());
+        promoCode.setValid(true);
+        promoCode.setExpired(promoCodeReq.getExpired());
+
+        return promoCode;
     }
 }
