@@ -19,4 +19,16 @@ public class BasketReq {
     private Currency currency;
     private List<Article> articleList = new ArrayList<>();
     private String promoCodeId;
+
+    @Override
+    public String toString() {
+        return "BasketReq{" +
+                "id=" + id +
+                ", user=" + user +
+                ", sum=" + sum +
+                ", currency=" + currency +
+                ", articleList=" + articleList +
+                ", promoCodeId='" + promoCodeId + '\'' +
+                '}';
+    }
 }

@@ -43,7 +43,7 @@ public class AccountServiceImplTest {
     @Mock
     private PaymentRepository paymentRepository;
 //    каптор для того щоб перехопити обєкт який буде виконуватися в методі, в мене використ тому що там
-//    встановл локал дейт нав
+//    встановл локал дейт тайм
     @Captor
     private ArgumentCaptor<Payment> paymentArgumentCaptor;
 

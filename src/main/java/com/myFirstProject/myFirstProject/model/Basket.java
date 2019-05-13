@@ -40,4 +40,17 @@ public class Basket {
     @OneToOne
     @JoinColumn
     private PromoCode promoCode;
+
+    @Override
+    public String toString() {
+        return "Basket{" +
+                "id=" + id +
+                ", user=" + user +
+                ", sum=" + sum +
+                ", currency=" + currency +
+                ", expiredTime=" + expiredTime +
+                ", articleList=" + articleList +
+                ", promoCode=" + promoCode +
+                '}';
+    }
 }
