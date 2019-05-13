@@ -21,7 +21,7 @@ import static com.sun.tools.internal.xjc.reader.Ring.add;
 public class PromoCodePerMonthScheduler {
     private Logger logger = LoggerFactory.getLogger(PromoCodePerMonthScheduler.class);
     private PromoCodeRepository promoCodeRepository;
-//    використовуємо клок для того щоб протестувати локал дейт тайм
+    //    використовуємо клок для того щоб протестувати локал дейт тайм
 //    в аплікейшен конфіг створений бін для того щоб автовайрити
     private Clock clock;
 

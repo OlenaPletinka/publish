@@ -55,7 +55,6 @@ public class PromoCodePerMonthSchedulerTest {
         promoCodePerMonthScheduler.infoAboutUsedPromoCode();
 //        Then
         Mockito.verify(promoCodeRepository).findByTimeThenWasUsedBetween(start, end);
-
     }
 
     private List<PromoCode> buildPromoCodes() {
@@ -73,5 +72,23 @@ public class PromoCodePerMonthSchedulerTest {
         promoCode.setExpired(expired);
         promoCode.setTotalDiscount(discount);
         return promoCode;
+    }
+
+    @Test
+    public void infoAboutUsedPromoCodeIsEmpty() {
+        //        Given
+        PromoCodePerMonthScheduler promoCodePerMonthScheduler = new PromoCodePerMonthScheduler();
+        promoCodePerMonthScheduler.setPromoCodeRepository(promoCodeRepository);
+        promoCodePerMonthScheduler.setClock(clock);
+//        задаємоформат часу
+//        спочатку подебажила тест потім отримані значення перенесла сюди як енд і старт
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime start = LocalDateTime.parse("2016-09-01 00:00", formatter);
+        LocalDateTime end = LocalDateTime.parse("2016-10-11 00:00", formatter);
+        Mockito.when(promoCodeRepository.findByTimeThenWasUsedBetween(start, end)).thenReturn(new ArrayList<PromoCode>());
+//        When
+        promoCodePerMonthScheduler.infoAboutUsedPromoCode();
+//        Then
+        Mockito.verify(promoCodeRepository).findByTimeThenWasUsedBetween(start, end);
     }
 }
