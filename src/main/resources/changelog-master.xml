@@ -116,72 +116,73 @@
     </insert>
 </changeSet>
 
-    <changeSet author="olena_pletinka" id="olena12">
+    <changeSet author="olena_pletinka" id="olena120">
         <insert tableName="promo_code">
             <column name="id" type="varchar(255)" value="PROMO_10"/>
-            <column name="expired_date" type="DATETIME" value="2019-06-30 12:00:00"/>
+            <column name="expired" type="DATETIME" value="2019-06-30 12:00:00"/>
             <column name="valid" valueBoolean="true"/>
             <column name="promo_type" type="ENUM" value="PERCENT"/>
             <column name="value" type="DECIMAL" value="10"/>
         </insert>
         <insert tableName="promo_code">
             <column name="id" type="varchar(255)" value="PROMO_5"/>
-            <column name="expired_date" type="DATETIME" value="2019-06-30 12:00:00"/>
+            <column name="expired" type="DATETIME" value="2019-06-30 12:00:00"/>
             <column name="valid" valueBoolean="true"/>
             <column name="promo_type" type="ENUM" value="PERCENT"/>
             <column name="value" type="DECIMAL" value="5"/>
         </insert>
         <insert tableName="promo_code">
             <column name="id" type="varchar(255)" value="PROMO_15"/>
-            <column name="expired_date" type="DATETIME" value="2019-06-30 12:00:00"/>
+            <column name="expired" type="DATETIME" value="2019-06-30 12:00:00"/>
             <column name="valid" valueBoolean="true"/>
             <column name="promo_type" type="ENUM" value="PERCENT"/>
             <column name="value" type="DECIMAL" value="15"/>
         </insert>
         <insert tableName="promo_code">
             <column name="id" type="varchar(255)" value="PROMO_20"/>
-            <column name="expired_date" type="DATETIME" value="2019-06-30 12:00:00"/>
+            <column name="expired" type="DATETIME" value="2019-06-30 12:00:00"/>
             <column name="valid" valueBoolean="true"/>
             <column name="promo_type" type="ENUM" value="PERCENT"/>
             <column name="value" type="DECIMAL" value="20"/>
         </insert>
         <insert tableName="promo_code">
             <column name="id" type="varchar(255)" value="PROMO_25"/>
-            <column name="expired_date" type="DATETIME" value="2019-06-30 12:00:00"/>
+            <column name="expired" type="DATETIME" value="2019-06-30 12:00:00"/>
             <column name="valid" valueBoolean="true"/>
             <column name="promo_type" type="ENUM" value="PERCENT"/>
             <column name="value" type="DECIMAL" value="25"/>
         </insert>
         <insert tableName="promo_code">
             <column name="id" type="varchar(255)" value="PROMO_1"/>
-            <column name="expired_date" type="DATETIME" value="2019-06-30 12:00:00"/>
+            <column name="expired" type="DATETIME" value="2019-06-30 12:00:00"/>
             <column name="valid" valueBoolean="true"/>
             <column name="promo_type" type="ENUM" value="MONEY"/>
             <column name="value" type="DECIMAL" value="1"/>
         </insert>
         <insert tableName="promo_code">
             <column name="id" type="varchar(255)" value="PROMO_1.5"/>
-            <column name="expired_date" type="DATETIME" value="2019-06-30 12:00:00"/>
+            <column name="expired" type="DATETIME" value="2019-06-30 12:00:00"/>
             <column name="valid" valueBoolean="true"/>
             <column name="promo_type" type="ENUM" value="MONEY"/>
             <column name="value" type="DECIMAL" value="1.5"/>
         </insert>
         <insert tableName="promo_code">
             <column name="id" type="varchar(255)" value="PROMO_2"/>
-            <column name="expired_date" type="DATETIME" value="2019-06-30 12:00:00"/>
+            <column name="expired" type="DATETIME" value="2019-06-30 12:00:00"/>
             <column name="valid" valueBoolean="true"/>
             <column name="promo_type" type="ENUM" value="MONEY"/>
             <column name="value" type="DECIMAL" value="2"/>
-        </insert> <insert tableName="promo_code">
+        </insert>
+        <insert tableName="promo_code">
             <column name="id" type="varchar(255)" value="PROMO_2.5"/>
-            <column name="expired_date" type="DATETIME" value="2019-06-30 12:00:00"/>
+            <column name="expired" type="DATETIME" value="2019-06-30 12:00:00"/>
             <column name="valid" valueBoolean="true"/>
             <column name="promo_type" type="ENUM" value="MONEY"/>
             <column name="value" type="DECIMAL" value="2.5"/>
         </insert>
         <insert tableName="promo_code">
             <column name="id" type="varchar(255)" value="PROMO_0.5"/>
-            <column name="expired_date" type="DATETIME" value="2019-06-30 12:00:00"/>
+            <column name="expired" type="DATETIME" value="2019-06-30 12:00:00"/>
             <column name="valid" valueBoolean="true"/>
             <column name="promo_type" type="ENUM" value="MONEY"/>
             <column name="value" type="DECIMAL" value="0.5"/>

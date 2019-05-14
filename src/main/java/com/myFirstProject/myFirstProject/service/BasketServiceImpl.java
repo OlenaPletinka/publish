@@ -56,13 +56,14 @@ public class BasketServiceImpl implements BasketService {
         logger.info("Basket saved with id {}", id);
         accountService.payForArticles(basketReq.getSum(), basketReq.getUser().getId(), promoCode);
         promoCode.setValid(false);
+        promoCode.setTimeThenWasUsed(time);
         logger.info(String.format("%s was payed for order", basketReq.getSum()));
 
         return id;
     }
 
     private PromoCode getPromoCodeFromDB(BasketReq basketReq) {
-        PromoCode promoCode = getPromoCode(basketReq.getId());
+        PromoCode promoCode = getPromoCode(basketReq.getPromoCodeId());
         if (promoCode == null) {
             throw new PromoCodeNotFoundException(String.format("Promo code with id - %s is not found", basketReq.getPromoCodeId()));
         } else if (!promoCode.getValid()) {
@@ -73,8 +74,8 @@ public class BasketServiceImpl implements BasketService {
         return promoCode;
     }
 
-    private PromoCode getPromoCode(Long id) {
-        PromoCode promoCode = promoCodeRepository.findById(id);
+    private PromoCode getPromoCode(String id) {
+        PromoCode promoCode = promoCodeRepository.findById(id).get();
 
         return promoCode;
     }

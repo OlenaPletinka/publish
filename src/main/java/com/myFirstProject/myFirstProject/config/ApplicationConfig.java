@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import java.time.Clock;
+
 @Configuration
 @EnableScheduling
 public class ApplicationConfig {
@@ -31,6 +33,11 @@ public class ApplicationConfig {
         TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
         factory.addConnectorCustomizers(gracefulShutdown);
         return factory;
+    }
+
+    @Bean
+    public Clock clock() {
+        return Clock.systemDefaultZone();
     }
 }
 

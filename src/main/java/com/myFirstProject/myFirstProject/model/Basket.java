@@ -40,4 +40,11 @@ public class Basket {
     @OneToOne
     @JoinColumn
     private PromoCode promoCode;
+
+    @Override
+    public String toString() {
+        return "Basket{" +
+                "id=" + id +
+                '}';
+    }
 }

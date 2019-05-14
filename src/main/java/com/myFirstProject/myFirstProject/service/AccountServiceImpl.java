@@ -85,10 +85,11 @@ public class AccountServiceImpl implements AccountService {
             //обєкт уже існує в репозиторії
         } else {
             //викликали сейв бо акаутна у юзера не було
-            account = accountRepository.save(createAccount(paymentReq, user));
+            account = createAccount(paymentReq, user);
             List<Payment> payments = new ArrayList<>();
             payments.add(getPayment(paymentReq, account, currencyConverter(paymentReq.getSum(), paymentReq.getCurrencyEntity())));
             account.setPayments(payments);
+            accountRepository.save(account);
         }
     }
 
@@ -171,20 +172,21 @@ public class AccountServiceImpl implements AccountService {
     public void payForArticles(BigDecimal sum, Long id, PromoCode promoCode) {
         Account account = accountRepository.findAccountByUserId(id);
         validateAccount(account, sum);
-        BigDecimal taxPlusDiscount = findSumOfOrder(promoCode, sum);
+        promoCode.setTotalDiscount(getDiscount(promoCode, sum));
+        BigDecimal taxPlusDiscount = sum.subtract(promoCode.getTotalDiscount());
         BigDecimal subtract = account.getSum().subtract(taxPlusDiscount);
         account.setSum(subtract);
         logger.info(String.format("User with id - %d payed - %s, his account - %s", id, sum, subtract));
     }
 
-    private BigDecimal findSumOfOrder(PromoCode promoCode, BigDecimal sum) {
+    private BigDecimal getDiscount (PromoCode promoCode, BigDecimal sum) {
         if (promoCode.getPromoType() == PromoType.PERCENT) {
             BigDecimal percent = promoCode.getValue().divide(BigDecimal.valueOf(100));
-            BigDecimal fraction = BigDecimal.ONE.subtract(percent);
-            return sum.multiply(fraction);
-        } else {
+            BigDecimal discount = sum.multiply(percent);
+            return discount;
+        }else {
             validatePromoCode(sum, promoCode);
-            return sum.subtract(promoCode.getValue());
+            return promoCode.getValue();
         }
     }
 

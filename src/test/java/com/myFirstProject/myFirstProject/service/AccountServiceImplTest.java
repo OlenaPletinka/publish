@@ -43,7 +43,7 @@ public class AccountServiceImplTest {
     @Mock
     private PaymentRepository paymentRepository;
 //    каптор для того щоб перехопити обєкт який буде виконуватися в методі, в мене використ тому що там
-//    встановл локал дейт нав
+//    встановл локал дейт тайм
     @Captor
     private ArgumentCaptor<Payment> paymentArgumentCaptor;
 
@@ -57,7 +57,7 @@ public class AccountServiceImplTest {
         User user = buildUser();
         Mockito.when(userRepository.findById(1l)).thenReturn(Optional.of(user));
         accountService.setAccountRepository(accountRepository);
-        Account account = buildAccount(BigDecimal.TEN, null, getPayments());
+        Account account = buildAccount(BigDecimal.TEN, null, getPayments(new Payment()));
         Mockito.when(accountRepository.findAccountByUserId(user.getId())).thenReturn(account);
         accountService.setCurrencyRateService(currencyRateService);
         Mockito.when(currencyRateService.getRateFromRepository()).thenReturn(buildCurrencyRates());
@@ -73,7 +73,7 @@ public class AccountServiceImplTest {
         Assert.assertEquals(buildCurrencyEntity(), payment.getCurrencyEntity());
         Assert.assertEquals(BigDecimal.ONE, payment.getRate());
         Assert.assertNotNull(account);
-        Assert.assertEquals(BigDecimal.valueOf(11), account.getSum());
+        Assert.assertEquals(BigDecimal.valueOf(20), account.getSum());
         Assert.assertEquals(2, account.getPayments().size());
     }
 
@@ -86,9 +86,8 @@ public class AccountServiceImplTest {
         return account;
     }
 
-    private List<Payment> getPayments() {
+    private List<Payment> getPayments(Payment payment) {
         List<Payment> payments = new ArrayList<>();
-        Payment payment = new Payment();
         payments.add(payment);
         return payments;
     }
@@ -128,7 +127,7 @@ public class AccountServiceImplTest {
         accountService.setCurrencyRateService(currencyRateService);
         Mockito.when(currencyRateService.getRateFromRepository()).thenReturn(buildCurrencyRates());
         accountService.setPaymentRepository(paymentRepository);
-        Mockito.when(accountRepository.save(buildAccount(BigDecimal.TEN, buildUser(), null))).thenReturn(buildAccount(BigDecimal.TEN, buildUser(), null));
+        Mockito.when(accountRepository.save(buildAccount(BigDecimal.TEN, buildUser(), any()))).thenReturn(buildAccount(BigDecimal.TEN, buildUser(), getPayments(new Payment())));
 //        WHEN
         accountService.updateAccount(paymentReq);
 //        THEN
@@ -141,8 +140,14 @@ public class AccountServiceImplTest {
         Assert.assertEquals(BigDecimal.ONE, payment.getRate());
         Assert.assertNotNull(payment.getAccount());
 
-        Mockito.verify(accountRepository).save(eq(buildAccount(BigDecimal.TEN, buildUser(), null)));
+//        Mockito.verify(accountRepository).save(eq(buildAccount(BigDecimal.TEN, buildUser(), any())));
 
+    }
+
+    private Payment buildPayment() {
+        Payment payment = new Payment();
+        payment.setSum(BigDecimal.TEN);
+        return payment;
     }
 
     @Test(expected = UserNotFoundException.class)
@@ -228,7 +233,7 @@ public class AccountServiceImplTest {
         promoCode.setPromoType(PromoType.PERCENT);
         AccountServiceImpl accountService = new AccountServiceImpl();
         accountService.setAccountRepository(accountRepository);
-        Account account = buildAccount(BigDecimal.TEN, null, getPayments());
+        Account account = buildAccount(BigDecimal.TEN, null, getPayments(new Payment()));
         Mockito.when(accountRepository.findAccountByUserId(id)).thenReturn(account);
 //        у тестах конфігурабельні поля не доступні(з  @Value("${negative.balanceOfUser}"), тому їх сетимо
 //        за допомогою рефлекшен ютілс
@@ -248,7 +253,7 @@ public class AccountServiceImplTest {
         promoCode.setPromoType(PromoType.MONEY);
         AccountServiceImpl accountService = new AccountServiceImpl();
         accountService.setAccountRepository(accountRepository);
-        Account account = buildAccount(BigDecimal.TEN, null, getPayments());
+        Account account = buildAccount(BigDecimal.TEN, null, getPayments(new Payment()));
         Mockito.when(accountRepository.findAccountByUserId(id)).thenReturn(account);
 //        у тестах конфігурабельні поля не доступні(з  @Value("${negative.balanceOfUser}"), тому їх сетимо
 //        за допомогою рефлекшен ютілс
@@ -268,7 +273,7 @@ public class AccountServiceImplTest {
         promoCode.setPromoType(PromoType.MONEY);
         AccountServiceImpl accountService = new AccountServiceImpl();
         accountService.setAccountRepository(accountRepository);
-        Account account = buildAccount(BigDecimal.TEN, null, getPayments());
+        Account account = buildAccount(BigDecimal.TEN, null, getPayments(new Payment()));
         Mockito.when(accountRepository.findAccountByUserId(id)).thenReturn(account);
 //        у тестах конфігурабельні поля не доступні(з  @Value("${negative.balanceOfUser}"), тому їх сетимо
 //        за допомогою рефлекшен ютілс
@@ -303,7 +308,7 @@ public class AccountServiceImplTest {
         PromoCode promoCode = buildPromoCode();
         AccountServiceImpl accountService = new AccountServiceImpl();
         accountService.setAccountRepository(accountRepository);
-        Account account = buildAccount(BigDecimal.TEN, null, getPayments());
+        Account account = buildAccount(BigDecimal.ONE, null, getPayments(new Payment()));
         Mockito.when(accountRepository.findAccountByUserId(id)).thenReturn(account);
         ReflectionTestUtils.setField(accountService, "negativeBalanceOfUser", BigDecimal.valueOf(5));
 //        When

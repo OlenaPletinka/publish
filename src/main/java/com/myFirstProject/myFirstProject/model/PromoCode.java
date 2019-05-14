@@ -27,4 +27,10 @@ public class PromoCode {
 
     @Column
     private LocalDateTime expired;
+
+    @Column
+    private LocalDateTime timeThenWasUsed;
+
+    @Column
+    private BigDecimal totalDiscount;
 }

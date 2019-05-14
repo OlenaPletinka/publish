@@ -39,9 +39,9 @@ public class TaxServiceScheduler {
     // додаткуб - містить 6-7 символів (сек хв год день міс рік)
     //initialDelay fixedRate на відміну від них
     public void payTax (){
-        LocalDate initial = LocalDate.now().minusMonths(1L);
-        LocalDate start = initial.withDayOfMonth(1);
-        LocalDate end = initial.withDayOfMonth(initial.lengthOfMonth());
+        LocalDateTime initial = LocalDateTime.now().minusMonths(1L);
+        LocalDateTime start = initial.withDayOfMonth(1);
+        LocalDateTime end = LocalDateTime.now().minusDays(1L);
         List<Payment> paymentPerMonth = paymentRepository.findByTimeOfPaymentBetween(start, end);
         BigDecimal taxPerMonth = accountService.calculateTaxPerMonth(paymentPerMonth);
         logger.info(String.format("Company must pay %s as tax", taxPerMonth));

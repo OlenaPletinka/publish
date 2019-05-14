@@ -18,8 +18,12 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping(path = "/promocode/")
 public class PromoCodeController {
-    @Autowired
     private PromoCodeService promoCodeService;
+
+    @Autowired
+    public void setPromoCodeService(PromoCodeService promoCodeService) {
+        this.promoCodeService = promoCodeService;
+    }
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity savePromoCode(@RequestBody PromoCodeReq promoCodeReq) {
