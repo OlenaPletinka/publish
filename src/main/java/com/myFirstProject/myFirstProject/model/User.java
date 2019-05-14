@@ -35,4 +35,11 @@ public class User {
     // CascadeType.ALL - сделай с владеемыми объектами класса тоже самое, что ты делаешь с владельцем
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
     private Account account;
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                '}';
+    }
 }

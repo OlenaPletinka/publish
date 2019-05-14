@@ -85,10 +85,11 @@ public class AccountServiceImpl implements AccountService {
             //обєкт уже існує в репозиторії
         } else {
             //викликали сейв бо акаутна у юзера не було
-            account = accountRepository.save(createAccount(paymentReq, user));
+            account = createAccount(paymentReq, user);
             List<Payment> payments = new ArrayList<>();
             payments.add(getPayment(paymentReq, account, currencyConverter(paymentReq.getSum(), paymentReq.getCurrencyEntity())));
             account.setPayments(payments);
+            accountRepository.save(account);
         }
     }
 

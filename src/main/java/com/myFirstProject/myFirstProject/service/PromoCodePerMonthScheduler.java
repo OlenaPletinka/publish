@@ -11,11 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static com.sun.tools.internal.xjc.reader.Ring.add;
 
 @Component
 public class PromoCodePerMonthScheduler {
